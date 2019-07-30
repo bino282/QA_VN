@@ -49,27 +49,27 @@ def convert_data_to_index(string_data, vocab):
             index_data.append(vocab[string_data[i]])
     return index_data
 
-def map_score(s1,s2,y_pred,labels_dev):
+def map_score(s1,s2,y_pred,labels):
     QA_pairs = {}
     for i in range(len(s1)):
         pred = y_pred[i]
 
         s1_str = " ".join(s1[i])
         s2_str = " ".join(s2[i])
-        if s1 in QA_pairs:
-            QA_pairs[s1_str].append((s2_str, labels_dev[i], pred[1]))
+        if s1_str in QA_pairs:
+            QA_pairs[s1_str].append((s2_str, labels[i], pred[1]))
         else:
-            QA_pairs[s1_str] = [(s2_str, labels_dev[i], pred[1])]
+            QA_pairs[s1_str] = [(s2_str, labels[i], pred[1])]
 
     MAP, MRR = 0, 0
     num_q = len(QA_pairs.keys())
-    for s1 in QA_pairs.keys():
+    for s1_str in QA_pairs.keys():
         p, AP = 0, 0
         MRR_check = False
 
-        QA_pairs[s1] = sorted(QA_pairs[s1], key=lambda x: x[-1], reverse=True)
+        QA_pairs[s1_str] = sorted(QA_pairs[s1_str], key=lambda x: x[-1], reverse=True)
 
-        for idx, (s2, label, prob) in enumerate(QA_pairs[s1]):
+        for idx, (s2_str, label, prob) in enumerate(QA_pairs[s1_str]):
             if int(label) == 1:
                 if not MRR_check:
                     MRR += 1 / (idx + 1)
