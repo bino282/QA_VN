@@ -99,7 +99,7 @@ class MATCH_LSTM_CNN():
 
         return output
 
-    def mlp_ptscorer(self,inputs, Ddim, N, l2reg, pfx='out', oact='sigmoid', extra_inp=[]):
+    def mlp_ptscorer(self,inputs, Ddim, N, l2reg, pfx='out', oact='softmax', extra_inp=[]):
         """ Element-wise features from the pair fed to an MLP. """
 
         sum_vec = add(inputs)
@@ -119,7 +119,7 @@ class MATCH_LSTM_CNN():
                                     activation='linear', name=pfx+'hdn%d'%(i))
                 mlp_input = Activation('tanh')(shared_dense(mlp_input))
 
-        shared_dense = Dense(1, kernel_regularizer=l2(l2reg), activation=oact, name=pfx+'mlp')
+        shared_dense = Dense(2, kernel_regularizer=l2(l2reg), activation=oact, name=pfx+'mlp')
         mlp_out = shared_dense(mlp_input)
         
         return mlp_out

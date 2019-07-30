@@ -16,7 +16,7 @@ logging.basicConfig(format = '%(asctime)s : %(levelname)s : %(message)s', level 
 logger = logging.getLogger(__name__)
 from utils import *
 import argparse
-from models import mvrnn
+from models import *
 
 def main(args):
 
@@ -24,10 +24,8 @@ def main(args):
     # Training params:
     max_len = args.max_len
     batch_size = args.batch_size
-    input_epoch_length = args.epoch_len
     epochs = args.epochs
     learning_rate = args.lr
-    log_file = args.log_file
 
     path = "./data/train.txt"
     path_validation = "./data/dev.txt"
@@ -67,11 +65,11 @@ def main(args):
                 'hidden_size':300,'dropout_rate':0.5,
                 'embed_trainable':True}
     try:
-        model_matching = load_model("./model_saved/model-lstm-cnn.h5",custom_objects={'Position_Embedding':Position_Embedding,'Attention':Attention})
+        model_matching = load_model("./model_saved/model-lstm-cnn.h5")
         print("Load model success......")
     except:
         print("Creating new model......")
-        model_matching = mvrnn.MVRNN(config=model_config).model
+        model_matching = lstm_cnn.MATCH_LSTM_CNN(config=model_config).model
     print(model_matching.summary())
     optimize = Adam(lr=0.0001)
     model_matching.compile(loss='sparse_categorical_crossentropy',optimizer=optimize,metrics=['accuracy'])
@@ -88,7 +86,7 @@ def main(args):
         MAP_dev,MRR_dev = map_score(X1_dev,X2_dev,y_dev_pred,Y_dev)
         print('MAP_dev = {}, MRR_dev = {}'.format(MAP_dev,MRR_dev))
         if(MAP_dev>MAP_last):
-            model_matching.save('./model_saved/model-lstm-cnn.h5')
+            model_matching.save('./model_save/model-lstm-cnn.h5')
             print('Model saved !')
             MAP_last = MAP_dev                                              
         y_test_pred = model_matching.predict([X1_test_pad,X2_test_pad])
@@ -104,8 +102,6 @@ if __name__ == '__main__':
                         help='Number of files in one batch.')
     parser.add_argument('--batch_size', type=int, default=32,
                         help='Number of files in one batch.')
-    parser.add_argument('--epoch_len', type=int, default=32,
-                        help='Number of batches per epoch. 0 trains on full dataset.')
     parser.add_argument('--epochs', type=int, default=10,
                         help='Number of epochs to train.')
     parser.add_argument('--lr', type=float, default=0.0001,
