@@ -20,12 +20,13 @@ class MATCH_LSTM_CNN():
         N = self.config['embed_size']
 
         seq1_embed = embedding(seq1)
-        seq1_embed = Dropout(0.5, noise_shape=(None,self.config['seq1_maxlen'],self.config['embed_size']))(seq1_embed)
+        seq1_embed = Dropout(rate = self.config['dropout_rate'], noise_shape=(None,self.config['seq1_maxlen'],self.config['embed_size']))(seq1_embed)
         seq2_embed = embedding(seq2)
-        seq2_embed = Dropout(0.5, noise_shape=(None,self.config['seq2_maxlen'],self.config['embed_size']))(seq2_embed)
-        share_lstm = Bidirectional(LSTM(self.config['hidden_size'], return_sequences=True, dropout=self.config['dropout_rate']))
-        seq1_rep_rnn = share_lstm(seq1_embed)
-        seq2_rep_rnn = share_lstm(seq2_embed)
+        seq2_embed = Dropout(rate = self.config['dropout_rate'], noise_shape=(None,self.config['seq2_maxlen'],self.config['embed_size']))(seq2_embed)
+        lstm = Bidirectional(LSTM(self.config['hidden_size'], return_sequences=True, dropout=self.config['dropout_rate']))
+        #lstm2 = Bidirectional(LSTM(self.config['hidden_size'], return_sequences=True, dropout=self.config['dropout_rate']))
+        seq1_rep_rnn = lstm(seq1_embed)
+        seq2_rep_rnn = lstm(seq2_embed)
 
         # calculate the sentence vector on X side using Convolutional Neural Networks
         qi_aggreg, nc_cnn = self.aggregate(self.config['seq1_maxlen'], l2reg=conf['l2reg'], cnninit=conf['cnninit'], 

@@ -16,7 +16,7 @@ logging.basicConfig(format = '%(asctime)s : %(levelname)s : %(message)s', level 
 logger = logging.getLogger(__name__)
 from utils import *
 import argparse
-from models import *
+from models import lstm_cnn,lstm,mvrnn
 
 def main(args):
 
@@ -35,6 +35,8 @@ def main(args):
     print ("\nReading training data:")
     X1_train,X2_train,Y_train = read_data_from_file(path)
     print("num_pairs_train : ",len(X1_train))
+    print("sample data : ")
+    print(X2_train[0:10])
     print ("\nReading validation data: ")
     X1_dev,X2_dev,Y_dev = read_data_from_file(path_validation)
     print("num_pairs_dev : ",len(X1_dev))
@@ -43,6 +45,10 @@ def main(args):
     print("num_pairs_test : ",len(X1_test))
     vocab,voc2index = creat_voc(X1_train+X2_train,min_count = 5)
     print("vocab_len : ",len(voc2index))
+
+    # load embed matrix
+    embed_matrix = create_embedd("word_vector.bin",vocab)
+    print(embed_matrix.shape)
 
     # Convert data to index and padding
     X1_train_pad = convert_and_pad(X1_train,voc2index,max_len)
@@ -56,13 +62,11 @@ def main(args):
     # Optimization algorithm used to update network weights
     optimizer = Adam(lr=learning_rate, epsilon=1e-8, clipnorm=2.0)
 
-    # Loss-function for compiling model
-    loss = {'ctc': lambda y_true, y_pred: y_pred}
-
 
     model_config={'seq1_maxlen':max_len,'seq2_maxlen':max_len,
                 'vocab_size':len(voc2index),'embed_size':300,
-                'hidden_size':300,'dropout_rate':0.5,
+                'hidden_size':300,'dropout_rate':0.2,
+                'embed':embed_matrix,
                 'embed_trainable':True}
     try:
         model_matching = load_model("./model_saved/model-lstm-cnn.h5")
@@ -71,8 +75,8 @@ def main(args):
         print("Creating new model......")
         model_matching = lstm_cnn.MATCH_LSTM_CNN(config=model_config).model
     print(model_matching.summary())
-    optimize = Adam(lr=0.0001)
-    model_matching.compile(loss='sparse_categorical_crossentropy',optimizer=optimize,metrics=['accuracy'])
+
+    model_matching.compile(loss='sparse_categorical_crossentropy',optimizer=optimizer,metrics=['accuracy'])
     checkpoint = ModelCheckpoint("./model_save/model-lstm-cnn-{epoch:02d}-{val_acc:.2f}.h5", monitor='val_loss', verbose=1, save_best_only=True)
     early_stop = EarlyStopping(monitor='val_loss',min_delta=0.0001,patience=3)
 
@@ -98,16 +102,14 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
 
     # Training params:
-    parser.add_argument('--max_len', type=int, default=100,
+    parser.add_argument('--max_len', type=int, default=50,
                         help='Number of files in one batch.')
     parser.add_argument('--batch_size', type=int, default=32,
                         help='Number of files in one batch.')
-    parser.add_argument('--epochs', type=int, default=10,
+    parser.add_argument('--epochs', type=int, default=50,
                         help='Number of epochs to train.')
     parser.add_argument('--lr', type=float, default=0.0001,
                         help='Learning rate.')
-    parser.add_argument('--log_file', type=str, default="log",
-                        help='Path to log stats to .csv file.')
 
     args = parser.parse_args()
 

@@ -1,12 +1,23 @@
 import re
 from collections import Counter
 from keras.preprocessing import sequence
-
+from nltk.tokenize import word_tokenize
+import gensim
+import numpy as np
+def remove_accents(input_str):
+    s1 = u'ÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚÝàáâãèéêìíòóôõùúýĂăĐđĨĩŨũƠơƯưẠạẢảẤấẦầẨẩẪẫẬậẮắẰằẲẳẴẵẶặẸẹẺẻẼẽẾếỀềỂểỄễỆệỈỉỊịỌọỎỏỐốỒồỔổỖỗỘộỚớỜờỞởỠỡỢợỤụỦủỨứỪừỬửỮữỰựỲỳỴỵỶỷỸỹ'
+    s0 = u'AAAAEEEIIOOOOUUYaaaaeeeiioooouuyAaDdIiUuOoUuAaAaAaAaAaAaAaAaAaAaAaAaEeEeEeEeEeEeEeEeIiIiOoOoOoOoOoOoOoOoOoOoOoOoUuUuUuUuUuUuUuYyYyYyYy'
+    s = ''
+    for c in input_str:
+        if c in s1:
+            s += s0[s1.index(c)]
+        else:
+            s += c
+    return s
 def clean_text(text):
     text = text.lower()
-    text = re.sub('[^_ÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚÝàáâãèéêìíòóôõùúýĂăĐđĨĩŨũƠơƯưẠạẢảẤấẦầẨẩẪẫẬậẮắẰằẲẳẴẵẶặẸẹẺẻẼẽẾếỀềỂểỄễỆệỈỉỊịỌọỎỏỐốỒồỔổỖỗỘộỚớỜờỞởỠỡỢợỤụỦủỨứỪừỬửỮữỰựỲỳỴỵỶỷỸỹ0-9a-z.]',' ',text)
-    text = text.split()
-    text = [w for w in text if not w.isdigit()]
+    # text = remove_accents(text)
+    text = word_tokenize(text)
     return text
 
 def read_data_from_file(path_name):
@@ -21,6 +32,16 @@ def read_data_from_file(path_name):
             labels.append(int(tmp[2]))
     return questions,answers,labels
 
+def create_embedd(path,vocab,embed_size=300):
+    model_word2vec = gensim.models.KeyedVectors.load_word2vec_format("word_vector.bin",binary=True)
+    embedding_matrix = np.zeros((len(vocab),embed_size))
+    for i in range(len(vocab)):
+        try:
+            embedding_vector = model_word2vec[vocab[i]]
+            embedding_matrix[i] = embedding_vector
+        except:
+            embedding_matrix[i] = np.random.uniform(-0.25, 0.25, embed_size).astype("float32")
+    return embedding_matrix
 def creat_voc(data,min_count = 5):
     voc = set()
     all_words = []
@@ -32,7 +53,6 @@ def creat_voc(data,min_count = 5):
     voc = list(voc)
     voc = [w for w in voc if counter[w] > min_count]
     voc.insert(0,'<PAD>')
-    voc.insert(1,'<UNK>')
     voc2index = {}
     for i in range(len(voc)):
         voc2index[voc[i]] = i
@@ -79,6 +99,7 @@ def map_score(s1,s2,y_pred,labels):
                 AP += p / (idx + 1)
         if(p==0):
             AP = 0
+            num_q = num_q -1
         else:
             AP /= p
         MAP += AP

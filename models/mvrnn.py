@@ -18,13 +18,14 @@ class MVRNN():
         embedding = Embedding(self.config['vocab_size'], self.config['embed_size'], trainable = self.config['embed_trainable'])
 
         seq1_embed = embedding(seq1)
-        seq1_embed = Dropout(self.config['dropout_rate'])(seq1_embed)
+        seq1_embed = Dropout(rate = self.config['dropout_rate'])(seq1_embed)
         seq2_embed = embedding(seq2)
-        seq2_embed = Dropout(self.config['dropout_rate'])(seq2_embed)
+        seq2_embed = Dropout(rate = self.config['dropout_rate'])(seq2_embed)
 
-        lstm = Bidirectional(LSTM(self.config['hidden_size'], return_sequences=True, dropout=self.config['dropout_rate']))
-        seq1_rep = lstm(seq1_embed)
-        seq2_rep = lstm(seq2_embed)
+        lstm1 = Bidirectional(LSTM(self.config['hidden_size'], return_sequences=True))
+        lstm2 = Bidirectional(LSTM(self.config['hidden_size'], return_sequences=True))
+        seq1_rep = lstm1(seq1_embed)
+        seq2_rep = lstm2(seq2_embed)
 
         cross = Match(match_type='concat')([seq1_rep, seq2_rep])
         cross_reshape = Reshape((-1, ))(cross)
