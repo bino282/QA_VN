@@ -32,8 +32,16 @@ def read_data_from_file(path_name):
             labels.append(int(tmp[2]))
     return questions,answers,labels
 
-def create_embedd(path,vocab,embed_size=300):
-    model_word2vec = gensim.models.KeyedVectors.load_word2vec_format("word_vector.bin",binary=True)
+def create_embedd(path,vocab,embed_size=200,is_binary=True,mode="other"):
+    if(mode == "gensim"):
+        model_word2vec = gensim.models.KeyedVectors.load_word2vec_format(path,binary=is_binary)
+    else:
+        model_word2vec = {}
+        with open(path,'r',encoding="utf-8") as lines:
+            for line in lines:
+                tmp = line.strip().split()
+                vector = [float(w) for w in tmp[1:]]
+                model_word2vec[tmp[0]] = vector
     embedding_matrix = np.zeros((len(vocab),embed_size))
     for i in range(len(vocab)):
         try:
@@ -99,7 +107,6 @@ def map_score(s1,s2,y_pred,labels):
                 AP += p / (idx + 1)
         if(p==0):
             AP = 0
-            num_q = num_q -1
         else:
             AP /= p
         MAP += AP

@@ -26,10 +26,11 @@ def main(args):
     batch_size = args.batch_size
     epochs = args.epochs
     learning_rate = args.lr
+    path_embed = args.path_embed
 
-    path = "./data/train.txt"
-    path_validation = "./data/dev.txt"
-    path_test = "./data/test.txt"
+    path = "./data/data_english/train.txt"
+    path_validation = "./data/data_english/dev.txt"
+    path_test = "./data/data_english/test.txt"
 
     # Create dataframes
     print ("\nReading training data:")
@@ -47,7 +48,7 @@ def main(args):
     print("vocab_len : ",len(voc2index))
 
     # load embed matrix
-    embed_matrix = create_embedd("word_vector.bin",vocab)
+    embed_matrix = create_embedd(path_embed,vocab)
     print(embed_matrix.shape)
 
     # Convert data to index and padding
