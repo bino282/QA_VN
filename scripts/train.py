@@ -108,6 +108,8 @@ if __name__ == '__main__':
                         help='Number of files in one batch.')
     parser.add_argument('--batch_size', type=int, default=32,
                         help='Number of files in one batch.')
+    parser.add_argument('--path_embed', type=str,
+                        help='path of word vector')
     parser.add_argument('--epochs', type=int, default=50,
                         help='Number of epochs to train.')
     parser.add_argument('--lr', type=float, default=0.0001,
