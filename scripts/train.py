@@ -1,3 +1,6 @@
+import os
+os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID" 
+os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 from datetime import datetime
 import traceback
 import keras.backend as K
@@ -6,8 +9,6 @@ from keras import models
 from keras.callbacks import ModelCheckpoint, EarlyStopping
 from keras.optimizers import Adam
 from keras.models import load_model
-
-import os,sys
 
 from os.path import dirname, join, abspath
 sys.path.insert(0, abspath(join(dirname(__file__), '..')))
