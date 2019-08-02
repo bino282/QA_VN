@@ -75,7 +75,7 @@ def main(args):
         print("Load model success......")
     except:
         print("Creating new model......")
-        model_matching = lstm_cnn.MATCH_LSTM_CNN(config=model_config).model
+        model_matching = mvrnn.MVRNN(config=model_config).model
     print(model_matching.summary())
 
     model_matching.compile(loss='sparse_categorical_crossentropy',optimizer=optimizer,metrics=['accuracy'])
