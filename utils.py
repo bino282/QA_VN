@@ -107,6 +107,7 @@ def map_score(s1,s2,y_pred,labels):
                 AP += p / (idx + 1)
         if(p==0):
             AP = 0
+            num_q = num_q - 1
         else:
             AP /= p
         MAP += AP

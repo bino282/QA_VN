@@ -29,9 +29,9 @@ def main(args):
     learning_rate = args.lr
     path_embed = args.path_embed
 
-    path = "./data/data_english/train.txt"
-    path_validation = "./data/data_english/dev.txt"
-    path_test = "./data/data_english/test.txt"
+    path = "./data/train.txt"
+    path_validation = "./data/dev.txt"
+    path_test = "./data/test.txt"
 
     # Create dataframes
     print ("\nReading training data:")
@@ -49,7 +49,7 @@ def main(args):
     print("vocab_len : ",len(voc2index))
 
     # load embed matrix
-    embed_matrix = create_embedd(path_embed,vocab)
+    embed_matrix = create_embedd(path_embed,vocab,mode="gensim")
     print(embed_matrix.shape)
 
     # Convert data to index and padding
@@ -66,7 +66,7 @@ def main(args):
 
 
     model_config={'seq1_maxlen':max_len,'seq2_maxlen':max_len,
-                'vocab_size':len(voc2index),'embed_size':300,
+                'vocab_size':len(voc2index),'embed_size':200,
                 'hidden_size':300,'dropout_rate':0.2,
                 'embed':embed_matrix,
                 'embed_trainable':True}
@@ -84,7 +84,7 @@ def main(args):
 
     MAP_last = 0
 
-    for epoch in range(150):
+    for epoch in range(epochs):
         print('Train on iteration {}'.format(epoch))
         model_matching.fit([X1_train_pad,X2_train_pad],Y_train,batch_size=batch_size,epochs=1,
                     validation_data=([X1_dev_pad,X2_dev_pad],Y_dev))
