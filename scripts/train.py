@@ -45,7 +45,7 @@ def main(args):
     print ("\nReading test data: ")
     X1_test,X2_test,Y_test = read_data_from_file(path_test)
     print("num_pairs_test : ",len(X1_test))
-    vocab,voc2index = creat_voc(X1_train+X2_train,min_count = 5)
+    vocab,voc2index = creat_voc(X1_train+X2_train,min_count = 2)
     print("vocab_len : ",len(voc2index))
 
     # load embed matrix
@@ -66,7 +66,7 @@ def main(args):
 
 
     model_config={'seq1_maxlen':max_len,'seq2_maxlen':max_len,
-                'vocab_size':len(voc2index),'embed_size':200,
+                'vocab_size':len(voc2index),'embed_size':300,
                 'hidden_size':300,'dropout_rate':0.2,
                 'embed':embed_matrix,
                 'embed_trainable':True}
@@ -75,7 +75,7 @@ def main(args):
         print("Load model success......")
     except:
         print("Creating new model......")
-        model_matching = mvrnn.MVRNN(config=model_config).model
+        model_matching = lstm.LSTM_MATCH(config=model_config).model
     print(model_matching.summary())
 
     model_matching.compile(loss='sparse_categorical_crossentropy',optimizer=optimizer,metrics=['accuracy'])

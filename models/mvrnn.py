@@ -15,7 +15,7 @@ class MVRNN():
     def build(self):
         seq1 = Input(name='seq1', shape=[self.config['seq1_maxlen']])
         seq2 = Input(name='seq2', shape=[self.config['seq2_maxlen']])
-        embedding = Embedding(self.config['vocab_size'], self.config['embed_size'], trainable = self.config['embed_trainable'])
+        embedding = Embedding(self.config['vocab_size'], self.config['embed_size'],weights=[self.config['embed']], trainable = self.config['embed_trainable'])
 
         seq1_embed = embedding(seq1)
         seq1_embed = Dropout(rate = self.config['dropout_rate'])(seq1_embed)

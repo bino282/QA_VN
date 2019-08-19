@@ -32,7 +32,7 @@ def read_data_from_file(path_name):
             labels.append(int(tmp[2]))
     return questions,answers,labels
 
-def create_embedd(path,vocab,embed_size=200,is_binary=True,mode="other"):
+def create_embedd(path,vocab,embed_size=300,is_binary=True,mode="other"):
     if(mode == "gensim"):
         model_word2vec = gensim.models.KeyedVectors.load_word2vec_format(path,binary=is_binary)
     else:
@@ -43,11 +43,14 @@ def create_embedd(path,vocab,embed_size=200,is_binary=True,mode="other"):
                 vector = [float(w) for w in tmp[1:]]
                 model_word2vec[tmp[0]] = vector
     embedding_matrix = np.zeros((len(vocab),embed_size))
+    not_found_c = 0
     for i in range(len(vocab)):
         try:
             embedding_vector = model_word2vec[vocab[i]]
             embedding_matrix[i] = embedding_vector
         except:
+            not_found_c = not_found_c + 1
+            print("Not found {} word in embed".format(not_found_c))
             embedding_matrix[i] = np.random.uniform(-0.25, 0.25, embed_size).astype("float32")
     return embedding_matrix
 def creat_voc(data,min_count = 5):
