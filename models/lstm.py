@@ -18,18 +18,20 @@ class LSTM_MATCH():
         embedding = Embedding(self.config['vocab_size'], self.config['embed_size'],weights=[self.config['embed']], trainable = self.config['embed_trainable'])
 
         seq1_embed = embedding(seq1)
-        seq1_embed = Dropout(rate = self.config['dropout_rate'])(seq1_embed)
         seq2_embed = embedding(seq2)
-        seq2_embed = Dropout(rate = self.config['dropout_rate'])(seq2_embed)
 
-        lstm1 = Bidirectional(LSTM(self.config['hidden_size']))
-        lstm2 = Bidirectional(LSTM(self.config['hidden_size']))
-        seq1_rep = lstm1(seq1_embed)
-        seq2_rep = lstm2(seq2_embed)
+        lstm = Bidirectional(LSTM(self.config['hidden_size'],dropout=self.config['dropout_rate']))
+        seq1_rep = lstm(seq1_embed)
+        seq2_rep = lstm(seq2_embed)
 
         final_rep = concatenate([seq1_rep,seq2_rep])
+        final_rep = BatchNormalization()(final_rep)
+        final_rep = Dropout(rate=self.config['dropout_rate'])(final_rep)
 
-        out = Dense(2, activation='softmax')(final_rep)
+        if self.config['target_mode'] == 'classification':
+            out = Dense(2, activation='softmax')(final_rep)
+        elif self.config['target_mode'] in ['regression', 'ranking']:
+            out = Dense(1,activation ="sigmoid")(final_rep)
 
         model = Model(inputs=[seq1, seq2], outputs=out)
         return model

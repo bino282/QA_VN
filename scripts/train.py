@@ -17,7 +17,7 @@ logging.basicConfig(format = '%(asctime)s : %(levelname)s : %(message)s', level 
 logger = logging.getLogger(__name__)
 from utils import *
 import argparse
-from models import lstm_cnn,lstm,mvrnn
+from models import lstm_cnn,lstm,mvrnn,cnn
 
 def main(args):
 
@@ -29,9 +29,9 @@ def main(args):
     learning_rate = args.lr
     path_embed = args.path_embed
 
-    path = "./data/train.txt"
-    path_validation = "./data/dev.txt"
-    path_test = "./data/test.txt"
+    path = "./data/train_segmented.txt"
+    path_validation = "./data/dev_segmented.txt"
+    path_test = "./data/test_segmented.txt"
 
     # Create dataframes
     print ("\nReading training data:")
@@ -45,7 +45,8 @@ def main(args):
     print ("\nReading test data: ")
     X1_test,X2_test,Y_test = read_data_from_file(path_test)
     print("num_pairs_test : ",len(X1_test))
-    vocab,voc2index = creat_voc(X1_train+X2_train,min_count = 2)
+    vocab,voc2index = creat_voc(X1_train+X2_train,min_count = 3)
+    print(voc2index)
     print("vocab_len : ",len(voc2index))
 
     # load embed matrix
@@ -67,18 +68,22 @@ def main(args):
 
     model_config={'seq1_maxlen':max_len,'seq2_maxlen':max_len,
                 'vocab_size':len(voc2index),'embed_size':300,
-                'hidden_size':300,'dropout_rate':0.2,
+                'hidden_size':300,'dropout_rate':0.5,
                 'embed':embed_matrix,
-                'embed_trainable':True}
+                'embed_trainable':True,
+                'target_mode':'classification'}
     try:
         model_matching = load_model("./model_saved/model-lstm-cnn.h5")
         print("Load model success......")
     except:
         print("Creating new model......")
-        model_matching = lstm.LSTM_MATCH(config=model_config).model
+        model_matching = mvrnn.MVRNN(config=model_config).model
     print(model_matching.summary())
 
-    model_matching.compile(loss='sparse_categorical_crossentropy',optimizer=optimizer,metrics=['accuracy'])
+    if(model_config["target_mode"]=="classification"):
+        model_matching.compile(loss='sparse_categorical_crossentropy',optimizer=optimizer,metrics=['accuracy'])
+    else:
+        model_matching.compile(loss='binary_crossentropy',optimizer=optimizer,metrics=['accuracy'])
     checkpoint = ModelCheckpoint("./model_save/model-lstm-cnn-{epoch:02d}-{val_acc:.2f}.h5", monitor='val_loss', verbose=1, save_best_only=True)
     early_stop = EarlyStopping(monitor='val_loss',min_delta=0.0001,patience=3)
 

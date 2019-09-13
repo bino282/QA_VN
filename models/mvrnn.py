@@ -34,7 +34,10 @@ class MVRNN():
 
         pool_flat_drop = Dropout(rate=self.config['dropout_rate'])(mm_k)
 
-        out = Dense(2, activation='softmax')(pool_flat_drop)
+        if self.config['target_mode'] == 'classification':
+            out = Dense(2, activation='softmax')(pool_flat_drop)
+        elif self.config['target_mode'] in ['regression', 'ranking']:
+            out = Dense(1, activation="sigmoid")(pool_flat_drop)
 
         model = Model(inputs=[seq1, seq2], outputs=out)
         return model

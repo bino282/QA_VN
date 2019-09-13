@@ -88,9 +88,9 @@ def map_score(s1,s2,y_pred,labels):
         s1_str = " ".join(s1[i])
         s2_str = " ".join(s2[i])
         if s1_str in QA_pairs:
-            QA_pairs[s1_str].append((s2_str, labels[i], pred[1]))
+            QA_pairs[s1_str].append((s2_str, labels[i], pred[-1]))
         else:
-            QA_pairs[s1_str] = [(s2_str, labels[i], pred[1])]
+            QA_pairs[s1_str] = [(s2_str, labels[i], pred[-1])]
 
     MAP, MRR = 0, 0
     num_q = len(QA_pairs.keys())

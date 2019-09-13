@@ -6,6 +6,7 @@ from gensim.models import Word2Vec,KeyedVectors
 import time
 import pandas as pd
 from nltk.tokenize import word_tokenize
+from utils import *
 texts= []
 def process(text):
     text = text.lower()
