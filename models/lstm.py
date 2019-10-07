@@ -15,14 +15,15 @@ class LSTM_MATCH():
     def build(self):
         seq1 = Input(name='seq1', shape=[self.config['seq1_maxlen']])
         seq2 = Input(name='seq2', shape=[self.config['seq2_maxlen']])
-        embedding = Embedding(self.config['vocab_size'], self.config['embed_size'],weights=[self.config['embed']], trainable = self.config['embed_trainable'])
+        embedding = Embedding(self.config['vocab_size'], self.config['embed_size'], trainable = self.config['embed_trainable'])
 
         seq1_embed = embedding(seq1)
         seq2_embed = embedding(seq2)
 
-        lstm = Bidirectional(LSTM(self.config['hidden_size'],dropout=self.config['dropout_rate']))
-        seq1_rep = lstm(seq1_embed)
-        seq2_rep = lstm(seq2_embed)
+        lstm1 = Bidirectional(LSTM(self.config['hidden_size'],dropout=self.config['dropout_rate']))
+        lstm2 = Bidirectional(LSTM(self.config['hidden_size'],dropout=self.config['dropout_rate']))
+        seq1_rep = lstm1(seq1_embed)
+        seq2_rep = lstm2(seq2_embed)
 
         final_rep = concatenate([seq1_rep,seq2_rep])
         final_rep = BatchNormalization()(final_rep)
