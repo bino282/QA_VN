@@ -77,7 +77,7 @@ def main(args):
         print("Load model success......")
     except:
         print("Creating new model......")
-        model_matching = mvrnn.MVRNN(config=model_config).model
+        model_matching = cnn.CNN_MATCH(config=model_config).model
     print(model_matching.summary())
 
     if(model_config["target_mode"]=="classification"):
