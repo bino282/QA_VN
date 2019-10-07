@@ -20,10 +20,10 @@ class LSTM_MATCH():
         seq1_embed = embedding(seq1)
         seq2_embed = embedding(seq2)
 
-        lstm1 = Bidirectional(LSTM(self.config['hidden_size'],dropout=self.config['dropout_rate']))
+        lstm = Bidirectional(LSTM(self.config['hidden_size'],dropout=self.config['dropout_rate']))
         lstm2 = Bidirectional(LSTM(self.config['hidden_size'],dropout=self.config['dropout_rate']))
-        seq1_rep = lstm1(seq1_embed)
-        seq2_rep = lstm2(seq2_embed)
+        seq1_rep = lstm(seq1_embed)
+        seq2_rep = lstm(seq2_embed)
 
         final_rep = concatenate([seq1_rep,seq2_rep])
         final_rep = BatchNormalization()(final_rep)
